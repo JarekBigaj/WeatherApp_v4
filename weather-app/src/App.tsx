@@ -94,7 +94,6 @@ const WeatherAppWrapper= styled(({className,children}:Props)=>{
   text-align:left;
   margin: 2rem auto;
   width: 60rem;
-  height: auto;
   border-radius: 5px;
   background-color: (206, 52%, 80%, 1);
   box-shadow: 3px 5px 3px 5px;
@@ -104,29 +103,37 @@ const CityWrapper = styled(({children, className}:Props)=>{
   return <div className={className}>{children}</div>
 })`
   position: relative;
-  text-align:left;
+  width:100%;
   margin: none;
-  width: auto;
-  height: auto;
-  padding: 10px;
   border-radius: 5px 5px 0px 0px;
   background-color: hsla(202, 100%, 29%, 1);
   box-shadow: 1px 1px 1px 1px;
+  display: inline-grid;
+  grid-template-columns: auto auto;
 `;
 
 const CityNameField = styled(({className,city}:Props) =>{
   return <h1 className={className}>{city}</h1>
 })`
+  text-align:left;
+  margin:20px;
+  font-size:4rem;
+  color:hsla(55, 80%, 84%, 1);
 `;
 
 const CitySearchField = styled(({className}:Props)=>{
   return <input className={className} type="search"/>
 })`
+  margin:auto auto;
+  width:80%;
+  height:40%;
+  font-size:1.5rem;
 `;
 
 const WeahterInfoWrapper = styled(({className,children}:Props) => {
   return <div className={className}>{children}</div>
 })`
+  background-color:hsla(0, 0%, 95%, 1);
 `;
 
 const DateTime = styled(({className, dateTime}:Props) => {
