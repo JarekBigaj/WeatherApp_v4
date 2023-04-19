@@ -155,11 +155,46 @@ const WindCompas = styled(({className}:Props) => {
     </div>
   )
 })`
+width: 100%;
+display: inline-grid;
+grid-template-columns: auto auto;
 `;
 
 const WindDirection = styled(({className,windDirection}:Props) => {
-  return <span className={className}>{windDirection}</span>
+  return (
+    <div className={className}>
+      <p className="sr-only">{windDirection}</p>
+      <span className='windArrow'></span>
+    </div>
+  )
 })`
+.sr-only:not(:focus):not(:active) {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+.windArrow{
+  --size:1rem;
+  height: calc(var(--size)*3);
+  width: var(--size);
+  background-color:  #ffff8b;
+  clip-path: polygon(50% 0, 0% 100%, 100% 100%);
+  transform: translateY(-50%)
+  rotate(${props => props.windDirection+"deg" || "0deg"});
+  transform-origin: bottom center;
+  transition: transform 500ms ease;
+}
+  --size: 6rem;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background-color: rgba(59, 61, 231, 0.5);
+  display: grid;
+  place-items: center;
 `;
 
 const WindSpeed = styled(({className,windSpeed}:Props) => {
