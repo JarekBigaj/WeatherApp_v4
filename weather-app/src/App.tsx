@@ -1,8 +1,8 @@
 import {createContext, useContext, useState, useEffect} from 'react';
 import styled from 'styled-components';
 
-
-const API_URL_WARSAW ='https://api.open-meteo.com/v1/forecast?latitude=52.23&longitude=21.01&current_weather=true';
+const API_GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search?name=';
+const API_URL_DEFAULT ='https://api.open-meteo.com/v1/forecast?latitude=52.23&longitude=21.01&current_weather=true';
 interface Props {
   children?: React.ReactNode;
   className?: string;
@@ -13,6 +13,13 @@ interface Props {
   windDirection? : number;
   windSpeed?: number;
 };
+
+type InputProps = {
+  value?:any;
+  className?:string;
+  onChange?:any;
+  onClick?:any;
+}
 
 type CurrentWeatherProps = {
   temperature : number;
@@ -33,13 +40,31 @@ const dummyElement:CurrentWeatherProps = {
 const WeatherContext = createContext(dummyElement);
 
 function App() {
-  const [currentCity, setCurrenCity] = useState('Warsaw');
+  const [currentCity, setCurrentCity] = useState('Warsaw');
+  const [input, setInput] = useState<string>("");
+  const [searchArray,setSearchArray]= useState<any|null>([]);
   const [weatherData, setWeatherData] = useState<CurrentWeatherProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  useEffect(()=>{
+    fetch(API_GEOCODING+input)
+    .then(response => {
+      return response.json();
+    })
+    .then(response => {
+      const {results} = response;
+      return results;
+    })
+    .then(results =>{
+      const searchArray:[any] = results?results:[];
+      setSearchArray(searchArray.map(value => [value?.name,value?.country,value?.longitude]));
+    })
+  },[input]);
+
   useEffect(() => {
-    const informationCurrentCityWeather = API_URL_WARSAW;
+    const informationCurrentCityWeather = API_URL_DEFAULT;
+    // const informationCurrentCityWeather = `https://api.open-meteo.com/v1/forecast?latitude=${}&longitude=${}&current_weather=true`
 
     fetch(informationCurrentCityWeather)
     .then(response => {
@@ -62,6 +87,8 @@ function App() {
 
   },[currentCity]);
 
+
+
   const {temperature,time,weathercode} = weatherData ? weatherData : 
   {
     temperature:0,
@@ -73,7 +100,10 @@ function App() {
     <WeatherAppWrapper>
       <CityWrapper>
         <CityNameField city={currentCity}/>
-        <CitySearchField/>
+        <SearchFieldWrapper>
+          <CitySearchField value={input} onChange={(event:any) => setInput(event.target.value)}/>
+          <SearchCityResults value={searchArray} onClick={(event:any) => setCurrentCity(input)}/>
+        </SearchFieldWrapper>
       </CityWrapper>
       <WeahterInfoWrapper>
         <DateTime dateTime={time}/>
@@ -112,6 +142,11 @@ const CityWrapper = styled(({children, className}:Props)=>{
   grid-template-columns: auto auto;
 `;
 
+const SearchFieldWrapper = styled(({className,children}:Props)=>{
+  return <div className={className}>{children}</div>
+})`
+`;
+
 const CityNameField = styled(({className,city}:Props) =>{
   return <h1 className={className}>{city}</h1>
 })`
@@ -121,13 +156,39 @@ const CityNameField = styled(({className,city}:Props) =>{
   color:hsla(55, 80%, 84%, 1);
 `;
 
-const CitySearchField = styled(({className}:Props)=>{
-  return <input className={className} type="search"/>
+const CitySearchField = styled(({className,value,onChange}:InputProps)=>{
+  return <input className={className} value={value} onChange={onChange} type="search"/>
 })`
   margin:auto auto;
   width:80%;
   height:40%;
   font-size:1.5rem;
+`;
+
+const SearchCityResults = styled(({className,value}:InputProps)=>{
+  return (
+    <ul className={className}>
+      {
+        value.map((result:any)=>{
+          const [city,country]:any[] = result;
+          return <li className='search-result'>{city} : {country}</li>
+        })
+      }
+    </ul>
+  )
+})`
+  display:flex;
+  flex-direction:column;
+  box-shadow:0px 0px 2px #ddd;
+  width:80%;
+  max-height:150px;
+  overflow-y:scroll;
+  cursor:pointer;
+  background-color: #fff;
+
+  .search-result{
+    padding:10px;
+  }
 `;
 
 const WeahterInfoWrapper = styled(({className,children}:Props) => {
