@@ -40,7 +40,7 @@ const dummyElement:CurrentWeatherProps = {
 const WeatherContext = createContext(dummyElement);
 
 function App() {
-  const [currentCity, setCurrentCity] = useState('Warsaw');
+  const [currentCity, setCurrentCity] = useState<any>([]);
   const [input, setInput] = useState<string>("");
   const [searchArray,setSearchArray]= useState<any|null>([]);
   const [weatherData, setWeatherData] = useState<CurrentWeatherProps | null>(null);
@@ -58,7 +58,7 @@ function App() {
     })
     .then(results =>{
       const searchArray:[any] = results?results:[];
-      setSearchArray(searchArray.map(value => [value?.name,value?.country,value?.longitude]));
+      setSearchArray(searchArray.map(value => [value?.name,value?.country,value?.longitude, value?.latitude]));
     })
   },[input]);
 
@@ -87,7 +87,7 @@ function App() {
 
   },[currentCity]);
 
-
+console.log(currentCity);
 
   const {temperature,time,weathercode} = weatherData ? weatherData : 
   {
@@ -102,7 +102,7 @@ function App() {
         <CityNameField city={currentCity}/>
         <SearchFieldWrapper>
           <CitySearchField value={input} onChange={(event:any) => setInput(event.target.value)}/>
-          <SearchCityResults value={searchArray} onClick={(event:any) => setCurrentCity(input)}/>
+          <SearchCityResults value={searchArray} onClick={(event:any) =>setCurrentCity(event.target.value)}/>
         </SearchFieldWrapper>
       </CityWrapper>
       <WeahterInfoWrapper>
@@ -165,13 +165,13 @@ const CitySearchField = styled(({className,value,onChange}:InputProps)=>{
   font-size:1.5rem;
 `;
 
-const SearchCityResults = styled(({className,value}:InputProps)=>{
+const SearchCityResults = styled(({className,value,onClick}:InputProps)=>{
   return (
     <ul className={className}>
       {
         value.map((result:any)=>{
-          const [city,country]:any[] = result;
-          return <li className='search-result'>{city} : {country}</li>
+          const [city,country,longitude]:any[] = result;
+          return <li key={longitude} value={city} onClick={() => onClick(result)} className='search-result'>{city} : {country}</li>
         })
       }
     </ul>
@@ -223,9 +223,9 @@ const WindCompas = styled(({className}:Props) => {
     </div>
   )
 })`
-width: 100%;
-display: inline-grid;
-grid-template-columns: auto auto;
+  width: 100%;
+  display: inline-grid;
+  grid-template-columns: auto auto;
 `;
 
 const WindDirection = styled(({className,windDirection}:Props) => {
