@@ -18,6 +18,7 @@ type InputProps = {
   value?:any;
   className?:string;
   onChange?:any;
+  result?:any;
   onClick?:any;
 }
 
@@ -29,6 +30,12 @@ type CurrentWeatherProps = {
   windspeed : number;
 }
 
+type CurrentCityProps = {
+  name?:string;
+  longitude?:any;
+  latitude?:any;
+}
+
 const dummyElement:CurrentWeatherProps = {
   temperature:0,
   time:"",
@@ -37,10 +44,16 @@ const dummyElement:CurrentWeatherProps = {
   windspeed:0
 }
 
+const defaultCity:CurrentCityProps = {
+  name:"Warsaw",
+  longitude:21.01,
+  latitude:52.23
+} 
+
 const WeatherContext = createContext(dummyElement);
 
 function App() {
-  const [currentCity, setCurrentCity] = useState<any>([]);
+  const [currentCity, setCurrentCity] = useState<CurrentCityProps>(defaultCity);
   const [input, setInput] = useState<string>("");
   const [searchArray,setSearchArray]= useState<any|null>([]);
   const [weatherData, setWeatherData] = useState<CurrentWeatherProps | null>(null);
@@ -63,8 +76,8 @@ function App() {
   },[input]);
 
   useEffect(() => {
-    const informationCurrentCityWeather = API_URL_DEFAULT;
-    // const informationCurrentCityWeather = `https://api.open-meteo.com/v1/forecast?latitude=${}&longitude=${}&current_weather=true`
+    // const informationCurrentCityWeather = API_URL_DEFAULT;
+    const informationCurrentCityWeather = `https://api.open-meteo.com/v1/forecast?latitude=${currentCity.latitude}&longitude=${currentCity.longitude}&current_weather=true`
 
     fetch(informationCurrentCityWeather)
     .then(response => {
@@ -87,7 +100,6 @@ function App() {
 
   },[currentCity]);
 
-console.log(currentCity);
 
   const {temperature,time,weathercode} = weatherData ? weatherData : 
   {
@@ -99,10 +111,21 @@ console.log(currentCity);
   return (
     <WeatherAppWrapper>
       <CityWrapper>
-        <CityNameField city={currentCity}/>
+        <CityNameField city={currentCity?.name}/>
         <SearchFieldWrapper>
           <CitySearchField value={input} onChange={(event:any) => setInput(event.target.value)}/>
-          <SearchCityResults value={searchArray} onClick={(event:any) =>setCurrentCity(event.target.value)}/>
+          <SearchCityResults >
+            {
+              searchArray.map((result:any)=>{
+                const [city,country,longitude,latitude]:any[] = result;
+                return <SearchItem result={result} onClick={() => setCurrentCity({
+                  name:city,
+                  longitude:longitude,
+                  latitude:latitude
+                })}/>
+              })
+            } 
+          </SearchCityResults>
         </SearchFieldWrapper>
       </CityWrapper>
       <WeahterInfoWrapper>
@@ -165,15 +188,10 @@ const CitySearchField = styled(({className,value,onChange}:InputProps)=>{
   font-size:1.5rem;
 `;
 
-const SearchCityResults = styled(({className,value,onClick}:InputProps)=>{
+const SearchCityResults = styled(({className,children}:Props)=>{
   return (
     <ul className={className}>
-      {
-        value.map((result:any)=>{
-          const [city,country,longitude]:any[] = result;
-          return <li key={longitude} value={city} onClick={() => onClick(result)} className='search-result'>{city} : {country}</li>
-        })
-      }
+      {children}
     </ul>
   )
 })`
@@ -185,10 +203,19 @@ const SearchCityResults = styled(({className,value,onClick}:InputProps)=>{
   overflow-y:scroll;
   cursor:pointer;
   background-color: #fff;
+`;
 
-  .search-result{
+const SearchItem = styled(({className,onClick,result}:InputProps)=>{
+  const [city,country,longitude]:any[] = result;
+  return <li 
+    key={longitude} 
+    value={city} 
+    onClick={onClick} 
+    className={className}>
+    {city} : {country}
+  </li>
+})`
     padding:10px;
-  }
 `;
 
 const WeahterInfoWrapper = styled(({className,children}:Props) => {
