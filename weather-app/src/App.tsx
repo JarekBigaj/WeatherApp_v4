@@ -1,8 +1,10 @@
 import {createContext, useContext, useState, useEffect} from 'react';
 import styled from 'styled-components';
+import weatherCode from './weather-code.json';
 
 const API_GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search?name=';
 const API_URL_DEFAULT ='https://api.open-meteo.com/v1/forecast?latitude=52.23&longitude=21.01&current_weather=true';
+const {weather_code_list}=weatherCode;
 interface Props {
   children?: React.ReactNode;
   className?: string;
@@ -221,7 +223,7 @@ const SearchCityResults = styled(({className,children}:Props)=>{
   overflow-y:auto;
   border-color: #3273dc;
   box-shadow: 0px 0px 5px #3273dc;
-
+  z-index:99;
   ::-webkit-scrollbar{
     display:none;
   }
@@ -257,15 +259,22 @@ const DateTime = styled(({className, dateTime}:Props) => {
   const [date,time]:string[]|any = dateTime?.split("T");
   return <span className={className}>{date} {time}</span>
 })`
+  margin:20px;
+  font-size:20px;
 `;
 
 const WeatherCode = styled(({className,weatherCode}:Props) => {
-  return <span className={className}> {weatherCode} </span>
+  const [informationAboutCurrentWeather] = Object.entries(weather_code_list).filter(([key,value])=>{
+    return key==weatherCode?.toString()
+  })
+  console.log(informationAboutCurrentWeather)
+  const [code,infoWeather]=informationAboutCurrentWeather;
+  return <span className={className}> {infoWeather} </span>
 })`
   position:absolute;
   bottom:20px;
-  left:50%;
   width:auto;
+  left:45%;
 `;
 const Temperature = styled(({className,temperature}:Props) => {
   return <span className={className}>{temperature?temperature +`°C`:""} </span>
