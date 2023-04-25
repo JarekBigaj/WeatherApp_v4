@@ -97,7 +97,9 @@ function App() {
     .finally(()=>{
       setLoading(false);
     });
-
+    
+    setInput("");
+    setSearchArray([]);
   },[currentCity]);
 
 
@@ -162,12 +164,17 @@ const CityWrapper = styled(({children, className}:Props)=>{
   background-color: hsla(202, 100%, 29%, 1);
   box-shadow: 1px 1px 1px 1px;
   display: inline-grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 60% 40%;
 `;
 
 const SearchFieldWrapper = styled(({className,children}:Props)=>{
   return <div className={className}>{children}</div>
 })`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  
 `;
 
 const CityNameField = styled(({className,city}:Props) =>{
@@ -182,10 +189,17 @@ const CityNameField = styled(({className,city}:Props) =>{
 const CitySearchField = styled(({className,value,onChange}:InputProps)=>{
   return <input className={className} value={value} onChange={onChange} type="search"/>
 })`
-  margin:auto auto;
-  width:80%;
-  height:40%;
-  font-size:1.5rem;
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 18px;
+  border: 2px solid #ccc;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  border-radius:0px 5px 0px 0px;
+  :focus {
+    border-color: #3273dc;
+    box-shadow: 0px 0px 5px #3273dc;
+  }
 `;
 
 const SearchCityResults = styled(({className,children}:Props)=>{
@@ -195,14 +209,22 @@ const SearchCityResults = styled(({className,children}:Props)=>{
     </ul>
   )
 })`
-  display:flex;
-  flex-direction:column;
-  box-shadow:0px 0px 2px #ddd;
-  width:80%;
-  max-height:150px;
-  overflow-y:scroll;
-  cursor:pointer;
+  position:absolute;
+  top:50px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px;
+  width:100%;
   background-color: #fff;
+  overflow:hidden;
+  overflow-y:auto;
+  border-color: #3273dc;
+  box-shadow: 0px 0px 5px #3273dc;
+
+  ::-webkit-scrollbar{
+    display:none;
+  }
 `;
 
 const SearchItem = styled(({className,onClick,result}:InputProps)=>{
@@ -215,13 +237,20 @@ const SearchItem = styled(({className,onClick,result}:InputProps)=>{
     {city} : {country}
   </li>
 })`
-    padding:10px;
+  padding: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  :hover {
+    background-color: #ccc;
+  }
 `;
 
 const WeahterInfoWrapper = styled(({className,children}:Props) => {
   return <div className={className}>{children}</div>
 })`
+  position:relative;
   background-color:hsla(0, 0%, 95%, 1);
+  height:240px;
 `;
 
 const DateTime = styled(({className, dateTime}:Props) => {
@@ -233,10 +262,18 @@ const DateTime = styled(({className, dateTime}:Props) => {
 const WeatherCode = styled(({className,weatherCode}:Props) => {
   return <span className={className}> {weatherCode} </span>
 })`
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  width:auto;
 `;
 const Temperature = styled(({className,temperature}:Props) => {
   return <span className={className}>{temperature?temperature +`°C`:""} </span>
 })`
+  position:absolute;
+  top:30%;
+  left:40%;
+  font-size:60px;
 `;
 
 const WindCompas = styled(({className}:Props) => {
@@ -250,9 +287,10 @@ const WindCompas = styled(({className}:Props) => {
     </div>
   )
 })`
-  width: 100%;
-  display: inline-grid;
-  grid-template-columns: auto auto;
+  width: auto;
+  position:absolute;
+  top:60px;
+  right:150px;
 `;
 
 const WindDirection = styled(({className,windDirection}:Props) => {
@@ -295,6 +333,11 @@ const WindDirection = styled(({className,windDirection}:Props) => {
 const WindSpeed = styled(({className,windSpeed}:Props) => {
   return <span className={className}>{windSpeed ? windSpeed+` km/h` :""}</span>
 })`
+  position:absolute;
+  bottom:30px;
+  left:120px;
+  font-size:24px;
+  width:100px;
 `;
 
 export default App;
